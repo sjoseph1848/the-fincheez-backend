@@ -44,6 +44,62 @@ app.get('/stock', (req,res) => {
     })
 })
 
+app.get('/events', (req,res) => {
+    if(!req.query.search) {
+        return res.send({
+            error:'You must provide a search symbol'
+        })
+    }  
+    console.log(req.query.search)
+    const options = {
+        method: 'Get',
+        url:`https://cloud.iexapis.com/stable/stock/${req.query.search}/news?token=${functions.config().iod.key}`
+    }
+    request(options, (error, response) => {
+        if(error) throw new Error(error);
+        const data = JSON.parse(response.body)
+        res.send({data})
+    })
+})
+
+app.get('/income-statement', (req,res) => {
+    if(!req.query.search) {
+        return res.send({
+            error:'You must provide a search symbol'
+        })
+    }  
+    console.log(req.query.search)
+    const options = {
+        method: 'Get',
+        url:`https://cloud.iexapis.com/stable/stock/${req.query.search}/income?period=annual&last=12&token=${functions.config().iod.key}`
+    }
+    request(options, (error, response) => {
+        if(error) throw new Error(error);
+        const data = JSON.parse(response.body)
+        res.send({data})
+    })
+})
+
+app.get('/cash-flow', (req,res) => {
+    if(!req.query.search) {
+        return res.send({
+            error:'You must provide a search symbol'
+        })
+    }  
+    console.log(req.query.search)
+    const options = {
+        method: 'Get',
+        url:`https://cloud.iexapis.com/stable/stock/${req.query.search}/cash-flow?period=annual&last=12&token=${functions.config().iod.key}`
+    }
+    request(options, (error, response) => {
+        if(error) throw new Error(error);
+        const data = JSON.parse(response.body)
+        res.send({data})
+    })
+})
+
+
+
 function justName(data){
     return data.profile.companyName;
 }
