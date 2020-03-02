@@ -1,16 +1,11 @@
 const functions = require('firebase-functions');
 const express = require('express')
 const admin = require('firebase-admin')
-admin.initializeApp();
 const request = require('request');
 const app = express();
 const cors = require('cors')
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
- response.send("Hello from Firebase!");
-});
+
+admin.initializeApp();
 
 app.use(cors({origin:true}))
 app.get('/stocks', (req,res) => {
@@ -35,7 +30,7 @@ app.get('/stock', (req,res) => {
     console.log(req.query.search)
     const options = {
         method: 'Get',
-        url:`https://financialmodelingprep.com/api/v3/search?query=${req.query.search}&limit=10`
+        url:`https://cloud.iexapis.com/stable/stock/${req.query.search}/company?token=${functions.config().iod.key}`
     }
     request(options, (error, response) => {
         if(error) throw new Error(error);
@@ -44,6 +39,9 @@ app.get('/stock', (req,res) => {
     })
 })
 
+
+
+//https://us-central1-fincheez-55527.cloudfunctions.net/events?search=aapl
 app.get('/events', (req,res) => {
     if(!req.query.search) {
         return res.send({
@@ -62,6 +60,7 @@ app.get('/events', (req,res) => {
     })
 })
 
+//https://us-central1-fincheez-55527.cloudfunctions.net/income-statement?search=aapl
 app.get('/income-statement', (req,res) => {
     if(!req.query.search) {
         return res.send({
@@ -80,6 +79,7 @@ app.get('/income-statement', (req,res) => {
     })
 })
 
+//https://us-central1-fincheez-55527.cloudfunctions.net/cash-flow?search=aapl
 app.get('/cash-flow', (req,res) => {
     if(!req.query.search) {
         return res.send({
@@ -98,10 +98,19 @@ app.get('/cash-flow', (req,res) => {
     })
 })
 
+//https://us-central1-fincheez-55527.cloudfunctions.net/api/news
+app.get('/news', (req,res) => {
+    const options = {
+        method: 'GET',
+        url: `http://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${functions.config().news.key}`
+    };
+    request(options, (error, response) => {
+        if(error) throw new Error(error);
+        const data = JSON.parse(response.body)
+        console.log(data)
+        res.send({data})
+    })
+})
 
-
-function justName(data){
-    return data.profile.companyName;
-}
 
 exports.api = functions.https.onRequest(app)
